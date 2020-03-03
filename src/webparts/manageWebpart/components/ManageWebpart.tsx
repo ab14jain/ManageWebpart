@@ -8,28 +8,45 @@ import {
   IDropdownOption
 } from "office-ui-fabric-react/lib/Dropdown";
 export interface IDropdownControlledState {
-  selectedItem?: { key: string | number | undefined };
+  selectedWebpart?: { key: string | number | undefined };
+  selectedSection?: { key: string | number | undefined };
+  selectedOrder?: { key: string | number | undefined };
+  selectedFactor?: { key: string | number | undefined };
 }
 export default class ManageWebpart extends React.Component<
   IManageWebpartProps,
   {}
 > {
   public state: IDropdownControlledState = {
-    selectedItem: undefined
+    selectedWebpart: undefined,
+    selectedSection: undefined,
+    selectedOrder: undefined,
+    selectedFactor: undefined,
   };
 
   public render(): React.ReactElement<IManageWebpartProps> {
-    const { selectedItem } = this.state;
+    const { selectedWebpart,selectedSection,selectedOrder,selectedFactor } = this.state;
     const items = this.props.webpart.map((item, key) => (
-      <li key={item.key}>
-        {item.text}
-        {item.position.zoneIndex}
-        {item.position.sectionIndex}
-        {item.position.controlIndex}
-        {item.position.sectionFactor}
-        {item.position.layoutIndex}
-        {item.section}
-      </li>
+      <div className={styles.row}>
+        <div className={styles.column}>
+          <p>{item.text} </p>
+        </div>
+        <div className={styles.column}>
+          <p>{item.position.zoneIndex}</p>
+        </div>
+        <div className={styles.column}>
+          <p>{item.position.sectionIndex}</p>
+        </div>
+        <div className={styles.column}>
+          <p>{item.position.controlIndex}</p>
+        </div>
+        <div className={styles.column}>
+          <p>{item.position.sectionFactor}</p>
+        </div>
+        {/* <div className={styles.column}>
+          <p>{item.section}</p>
+        </div> */}
+      </div>
     ));
 
     //const webpartTitle = this.props.webpart.map(wp => wp.text);
@@ -37,50 +54,70 @@ export default class ManageWebpart extends React.Component<
     let sectionDetails = [];
     let controlDetails = [];
     let sectionFactorDetails = [];
+    let sectionDetailsDistinct =[];
+    let controlDetailsDistinct = [];
+    let sectionFactorDetailsDistinct = [];
     this.props.webpart.forEach(wp => {
       ddDetails.push({
         key: wp.text,
         text: wp.text
       });
       sectionDetails.push({
-        key: wp.text,
+        key: wp.position.sectionIndex,
         text: wp.position.sectionIndex
       });
-      sectionDetails = sectionDetails.filter(
-        (n, i) => sectionDetails.indexOf(n) === i
-      );
+
       controlDetails.push({
-        key: wp.text,
+        key: wp.position.controlIndex,
         text: wp.position.controlIndex
       });
-      controlDetails = controlDetails.filter(
-        (n, i) => controlDetails.indexOf(n) === i
-      );
+
       sectionFactorDetails.push({
-        key: wp.text,
+        key: wp.position.sectionFactor,
         text: wp.position.sectionFactor
       });
-      sectionFactorDetails = sectionFactorDetails.filter(
-        (n, i) => sectionFactorDetails.indexOf(n) === i
-      );
+
+
     });
 
+    sectionDetailsDistinct =  this.removeDuplicates(sectionDetails, "text"); // sectionDetails.filter((value, index, self) => self.indexOf(value.text) === index);
+    controlDetailsDistinct =  this.removeDuplicates(controlDetails, "text"); // controlDetails.filter((value, index, self) => self.indexOf(value.text) === index);
+    sectionFactorDetailsDistinct = this.removeDuplicates(sectionFactorDetails, "text"); // sectionFactorDetails.filter((value, index, self) => self.indexOf(value.text) === index);
+    console.log("Distinct");
+    console.log(sectionFactorDetailsDistinct);
     return (
       <div className={styles.manageWebpart}>
         <div className={styles.container}>
           <div className={styles.row}>
-            <div className={styles.column}>{items}</div>
+            <div className={styles.column}>
+              <p>Webpart Name</p>
+            </div>
+            <div className={styles.column}>
+              <p>Webpart Row</p>
+            </div>
+            <div className={styles.column}>
+              <p>Webpart Column</p>
+            </div>
+            <div className={styles.column}>
+              <p>Webpart Order</p>
+            </div>
+            <div className={styles.column}>
+              <p>Webpart Layout</p>
+            </div>
+          </div>
+          {items}
+          <div className={styles.row}>
             <div>
               <div>
                 <Dropdown
-                  label="Wbparts"
-                  selectedKey={selectedItem ? selectedItem.key : undefined}
-                  onChange={this._onChange}
+                  label="Webparts"
+                  selectedKey={selectedWebpart ? selectedWebpart.key : undefined}
+                  onChange={this._onChangeWebpart}
                   placeholder="Select an option"
                   options={[
                     {
                       key: "inUseWebparts",
-                      text: "Webparts",
+                      text: "In Use Webparts",
                       itemType: DropdownMenuItemType.Header
                     },
                     ...ddDetails,
@@ -94,9 +131,7 @@ export default class ManageWebpart extends React.Component<
                       text: "More Webparts",
                       itemType: DropdownMenuItemType.Header
                     },
-                    { key: "broccoli", text: "Broccoli" },
-                    { key: "carrot", text: "Carrot" },
-                    { key: "lettuce", text: "Lettuce" }
+                    { key: "broccoli", text: "Broccoli" }
                   ]}
                   styles={{ dropdown: { width: 300 } }}
                 />
@@ -104,30 +139,30 @@ export default class ManageWebpart extends React.Component<
               <div>
                 <Dropdown
                   label="Section"
-                  selectedKey={selectedItem ? selectedItem.key : undefined}
-                  onChange={this._onChange}
+                  selectedKey={selectedSection ? selectedSection.key: undefined}
+                  onChange={this._onChangeSection}
                   placeholder="Select an option"
-                  options={[...sectionDetails]}
+                  options={[...sectionDetailsDistinct]}
                   styles={{ dropdown: { width: 300 } }}
                 />
               </div>
               <div>
                 <Dropdown
                   label="Order"
-                  selectedKey={selectedItem ? selectedItem.key : undefined}
-                  onChange={this._onChange}
+                  selectedKey={selectedOrder ? selectedOrder.key : undefined}
+                  onChange={this._onChangeOrder}
                   placeholder="Select an option"
-                  options={[...controlDetails]}
+                  options={[...controlDetailsDistinct]}
                   styles={{ dropdown: { width: 300 } }}
                 />
               </div>
               <div>
                 <Dropdown
                   label="Column Factor"
-                  selectedKey={selectedItem ? selectedItem.key : undefined}
-                  onChange={this._onChange}
+                  selectedKey={selectedFactor ? selectedFactor.key : undefined}
+                  onChange={this._onChangeFactor}
                   placeholder="Select an option"
-                  options={[...sectionFactorDetails]}
+                  options={[...sectionFactorDetailsDistinct]}
                   styles={{ dropdown: { width: 300 } }}
                 />
               </div>
@@ -137,15 +172,40 @@ export default class ManageWebpart extends React.Component<
       </div>
     );
   }
-  private _onChange = (
-    event: React.FormEvent<HTMLDivElement>,
-    item: IDropdownOption
-  ): void => {
-    console.log(
-      `Selection change: ${item.text} ${
-        item.selected ? "selected" : "unselected"
-      }`
-    );
-    this.setState({ selectedItem: item });
+
+  private removeDuplicates(myArr, prop) {
+      return myArr.filter((obj, pos, arr) => {
+          return arr.map(mapObj => mapObj[prop]).indexOf(obj[prop]) === pos;
+      });
+  }
+
+  private _onChangeWebpart = (evt, item) => {
+    if(item.text){
+      let selectedWebpart = this.props.webpart.filter(wp => wp.text === item.text)[0];
+      this.setState({
+        selectedWebpart: item,
+        selectedSection: {key: selectedWebpart.position.sectionIndex, text:selectedWebpart.position.sectionIndex},
+        selectedOrder: {key: selectedWebpart.position.controlIndex, text:selectedWebpart.position.controlIndex},
+        selectedFactor: {key: selectedWebpart.position.sectionFactor,text:selectedWebpart.position.sectionFactor}
+      });
+    }
+  };
+
+  private _onChangeSection = (evt, item) => {
+    this.setState({
+      selectedSection: item.text,
+    });
+  };
+
+  private _onChangeOrder = (evt, item) => {
+    this.setState({
+      selectedOrder: item.text,
+    });
+  };
+
+  private _onChangeFactor = (evt, item) => {
+    this.setState({
+      selectedFactor: item.text,
+    });
   };
 }
