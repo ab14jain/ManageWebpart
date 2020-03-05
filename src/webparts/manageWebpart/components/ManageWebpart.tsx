@@ -9,6 +9,8 @@ import {
   DropdownMenuItemType,
   IDropdownOption
 } from "office-ui-fabric-react/lib/Dropdown";
+import { sp } from "@pnp/sp/rest";
+import { ClientsidePageFromFile } from "@pnp/sp/clientside-pages";
 export interface IDropdownControlledState {
   selectedWebpart?: { key: string | number | undefined };
   selectedZone?: { key: string | number | undefined };
@@ -262,9 +264,22 @@ export default class ManageWebpart extends React.Component<
       </div>
     );
   }
-  private updatePage() {
+  private async updatePage() {
     console.log("=========Updated Page value start===========");
     console.log(this.state);
+
+    let pageURL = "/sites/MigrationData/SitePages/Home.aspx";
+    const file = sp.web.getFileByServerRelativePath(pageURL);
+    const page = await ClientsidePageFromFile(file);
+    // swap the order of two sections
+    // this will preserve the controls within the columns
+    //page.sections = [page.sections[2], page.sections[0]];
+    page.sections[1].columns = [page.sections[1].columns[1], page.sections[1].columns[2], page.sections[1].columns[0]];
+
+    // publish our changes
+    await page.save();
+
+    alert("Page updated");
     console.log("=========Updated Page value end===========");
   }
 
